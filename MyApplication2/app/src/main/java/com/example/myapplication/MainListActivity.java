@@ -49,6 +49,11 @@ public class MainListActivity extends AppCompatActivity {
     String Response = "";
     int count;
 
+    String pass_name ="";
+    String pass_number ="";
+    String pass_status ="";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +98,8 @@ public class MainListActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
 
+                        boolean flag = true;
+
                         println("응답 => " + response);
 
                         JsonParser Parser = new JsonParser();
@@ -121,6 +128,13 @@ public class MainListActivity extends AppCompatActivity {
                             System.out.println("User Status : " + object.get("User Status"));
                             Status.add(""+object.get("User Status"));
                             Status.get(i).replaceAll("\"","");
+
+                            if(flag){
+                                pass_name = Name.get(0);
+                                pass_number = Number.get(0);
+                                pass_status = Status.get(0);
+                                flag = false;
+                            }
 
                             System.out.println("------------------------");
                         }
@@ -186,7 +200,12 @@ public class MainListActivity extends AppCompatActivity {
 
 
     public void onButtonClicked(View v) {
-        Intent intent = new Intent(getApplicationContext(), detailedActivity.class);
+        Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+
+        intent.putExtra("name", pass_name);
+        intent.putExtra("number", pass_number);
+        intent.putExtra("status", pass_status);
+
         startActivity(intent);
         finish();
     }
