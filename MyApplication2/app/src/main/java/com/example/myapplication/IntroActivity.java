@@ -19,7 +19,7 @@ public class IntroActivity extends Activity {
         setContentView(R.layout.activity_intro);
 
         h = new Handler();
-        h.postDelayed(run, 3000); //3초후에 헨들러전송
+        h.postDelayed(run, 2300); //3초후에 헨들러전송
 
     }
 

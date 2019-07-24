@@ -46,13 +46,16 @@ public class MainListActivity extends AppCompatActivity {
     ArrayList<String> Name = new ArrayList<>();
     ArrayList<String> Number = new ArrayList<>();
     ArrayList<String> Status = new ArrayList<>();
+    ArrayList<String> Latitude = new ArrayList<>();
+    ArrayList<String> Longitude = new ArrayList<>();
     String Response = "";
     int count;
 
     String pass_name ="";
     String pass_number ="";
     String pass_status ="";
-
+    String pass_latitude = "";
+    String pass_longitude ="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,12 +132,23 @@ public class MainListActivity extends AppCompatActivity {
                             Status.add(""+object.get("User Status"));
                             Status.get(i).replaceAll("\"","");
 
+                            System.out.println("User Latitude : " + object.get("User Latitude"));
+                            Latitude.add(""+object.get("User Latitude"));
+                            Latitude.get(i).replaceAll("\"","");
+
+                            System.out.println("User Longitude : " + object.get("User Longitude"));
+                            Longitude.add(""+object.get("User Longitude"));
+                            Longitude.get(i).replaceAll("\"","");
+
                             if(flag){
                                 pass_name = Name.get(0);
                                 pass_number = Number.get(0);
                                 pass_status = Status.get(0);
                                 flag = false;
                             }
+
+                            pass_latitude = Latitude.get(i);
+                            pass_longitude = Longitude.get(i);
 
                             System.out.println("------------------------");
                         }
@@ -205,6 +219,8 @@ public class MainListActivity extends AppCompatActivity {
         intent.putExtra("name", pass_name);
         intent.putExtra("number", pass_number);
         intent.putExtra("status", pass_status);
+        intent.putExtra("latitude", pass_latitude);
+        intent.putExtra("longitude", pass_longitude);
 
         startActivity(intent);
         finish();

@@ -5,17 +5,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/colorWhite">
 
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="309dp">
+
+        <FrameLayout
+            android:id="@+id/map_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></FrameLayout>
 
         <ImageView
             android:id="@+id/list_title"
             android:layout_width="wrap_content"
-            android:layout_height="72dp"
+            android:layout_height="70dp"
             android:layout_gravity="top"
             android:src="@drawable/detailtitlebar" />
 
@@ -27,12 +33,13 @@
             android:layout_marginTop="16dp"
             android:layout_marginRight="10dp"
             android:background="#00ff0000"
+            android:onClick="backtohome"
             android:padding="0sp"
             android:scaleType="centerCrop"
-            app:srcCompat="@drawable/arrow2"
-            android:onClick="backtohome"/>
+            app:srcCompat="@drawable/arrow2" />
 
 
     </FrameLayout>
+
 
 </LinearLayout>
