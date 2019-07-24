@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1043630594749",
+    "firebase_url": "https://busandriver-e723e.firebaseio.com",
+    "project_id": "busandriver-e723e",
+    "storage_bucket": "busandriver-e723e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1043630594749:android:13c3c6a65bcbec53",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1043630594749-mbnabu4o3dmbotl9l91fnp3o523l04o2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.myapplication",
+            "certificate_hash": "a3d933387c04793e92249393b947432cdf2d282e"
+          }
+        },
+        {
+          "client_id": "1043630594749-e0f94110otl5mvifjog3korks5um09fe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCU8JgRzQ4vGLxb7JySqw5xHRNXPNfWuRE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1043630594749-e0f94110otl5mvifjog3korks5um09fe.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1043630594749-u03d03rhfutk28e00u3mlmj0sru5umge.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.com.com"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

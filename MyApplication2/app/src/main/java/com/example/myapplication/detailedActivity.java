@@ -4,9 +4,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 public class detailedActivity extends AppCompatActivity {
     //Frag1 frag;
@@ -16,6 +23,13 @@ public class detailedActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detailed);
 
 
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(this, new OnSuccessListener<InstanceIdResult>() {
+            @Override
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                String newToken = instanceIdResult.getToken();
+                Log.d("nowToken",newToken);
+            }
+        });
     }
 
 
@@ -26,3 +40,4 @@ public class detailedActivity extends AppCompatActivity {
     }
 
 }
+
