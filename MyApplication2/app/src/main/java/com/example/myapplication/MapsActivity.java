@@ -18,6 +18,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -26,12 +27,14 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -50,6 +53,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+       // final LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+      //  Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+      //
+      //  double longitude = location.getLongitude();
+      //  double latitude = location.getLatitude();
 
 
         // 1. 마커 옵션 설정 (만드는 과정)
@@ -80,8 +88,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.addMarker(markerOptions2);
 
+        double distance;
+        int level=0;
+        Location locationA = new Location("A");
+        locationA.setLatitude(new_latitude);
+        locationA.setLongitude(new_longitude);
+        Location locationB = new Location("B");
+        locationB.setLatitude(trans_latitude);
+        locationB.setLongitude(trans_longitude);
+        distance = locationA.distanceTo(locationB);
+
+        System.out.println("distance : " + distance);
+
+
+        if(distance > 12288000)
+            level = 1;
+        else if(distance >6144000)
+            level = 2;
+        else if(distance >3072000)
+            level = 3;
+        else if(distance >1536000)
+            level = 4;
+        else if(distance >768000)
+            level = 5;
+        else if(distance >384000)
+            level = 6;
+        else if(distance >192000)
+            level = 7;
+        else if(distance >96000)
+            level = 8;
+        else if(distance >48000)
+            level = 9;
+        else if(distance >24000)
+            level = 10;
+        else if(distance >12000)
+            level = 11;
+        else if(distance >6000)
+            level = 12;
+        else if(distance >3000)
+            level = 13;
+        else if(distance >1500)
+            level = 14;
+        else if(distance >750)
+            level = 15;
+        else if(distance >375)
+            level = 16;
+        else if(distance >188)
+            level = 17;
+
+
+        //CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+        //mMap.animateCamera(zoom);
+
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(new_latitude, new_longitude)));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(level));
 
        /* // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(new_latitude, new_longitude);
@@ -115,12 +175,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        button1 = (Button) findViewById(R.id.button1);
+        //button1 = (Button) findViewById(R.id.button1);
 
         TextView tx1 = (TextView)findViewById(R.id.tx1);
         TextView tx2 = (TextView)findViewById(R.id.tx2);
         TextView tx3 = (TextView)findViewById(R.id.tx3);
-        txtResult = (TextView)findViewById(R.id.txtResult);
+       // txtResult = (TextView)findViewById(R.id.txtResult);
         Intent intent = getIntent();
 
         /* 상세 화면에서 차주, 번호, 음주 정보를 프린트하는 부분 */
@@ -133,22 +193,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String status = intent.getExtras().getString("status");
 
         // gps 받아오기
-        /*
-        final String t_latitude = intent.getExtras().getString("latitude");
-        final String t_longitude = intent.getExtras().getString("longitude");
+
+        String t_latitude = intent.getExtras().getString("latitude");
+        String t_longitude = intent.getExtras().getString("longitude");
+
+        t_latitude = t_latitude.substring(1,t_latitude.length()-1);
+        t_longitude = t_longitude.substring(1,t_longitude.length()-1);
 
         trans_latitude = Double.parseDouble(t_latitude);
-        trans_longitude = Double.parseDouble(t_longitude);*/
+        trans_longitude = Double.parseDouble(t_longitude);
+
+        Log.d("R2",trans_latitude + " " + trans_longitude);
 
 
-        if(status.equals("\"0\""))
+        if(status.equals("1"))
             tx3.setText("해당 차량에서 음주가 감지되었습니다!");
 
         final LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+
+        //button1.performClick();
+
+        //button1.setOnClickListener(new View.OnClickListener() {
+          //  @Override
+            //public void onClick(View v) {
                 if (Build.VERSION.SDK_INT >= 23 &&
                         ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MapsActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
@@ -158,6 +226,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String provider = location.getProvider();
                     double longitude = location.getLongitude();
                     double latitude = location.getLatitude();
+
+                   // MyFirebaseMessagingService.now_latitude=longitude;
+                   // MyFirebaseMessagingService.now_longitude=latitude;
 
                     //txtResult.setText("위치정보 : " + provider + "\n"+
                     //        "위도 : " + longitude + "\n" +
@@ -179,10 +250,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 }
             }
-        });
+       // });
 
-        // button1.performClick();
-    }
+    //}
 
     final LocationListener gpsLocationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
@@ -195,14 +265,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             double altitude = location.getAltitude();
             String strNumber3 = String.format("%.3f", altitude);
 
-            txtResult.setText("\n [실시간 위치정보] : " + provider + "\n" +
-                    " 위도 : " + strNumber + " / " +
-                    "경도 : " + strNumber2 + " / " +
-                    "고도  : " + strNumber3);
+            //txtResult.setText("\n [실시간 위치정보] : " + provider + "\n" +
+           //         " 위도 : " + strNumber2 + " / " +
+            //        "경도 : " + strNumber + " / " +
+            //        "고도  : " + strNumber3);
 
 
-            new_longitude = longitude;
-            new_latitude = latitude;
+           // new_longitude = longitude;
+           // new_latitude = latitude;
 
             mMap.clear();
 

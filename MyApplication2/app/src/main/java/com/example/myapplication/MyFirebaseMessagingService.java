@@ -25,6 +25,8 @@ import com.google.gson.JsonParser;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     String TAG = "Test TAG";
+    static double now_longitude;
+    static double now_latitude;
 
     public MyFirebaseMessagingService() {
     }
@@ -57,6 +59,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         url = url.concat(latitude);
         url = url.concat("&");
         url = url.concat(longitude);
+        String work_status = "1";
+        url = url.concat("&");
+        url = url.concat(work_status);
         StringRequest request = new StringRequest(
                 Request.Method.GET,
                 url,

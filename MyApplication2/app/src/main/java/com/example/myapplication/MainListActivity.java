@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -20,6 +21,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -39,15 +43,19 @@ import java.util.Map;
 import static java.sql.DriverManager.println;
 
 public class MainListActivity extends AppCompatActivity {
-
+    static String device_token;
     private ListView m_oListView = null;
     private ImageButton button = null;
     ArrayList<String> UserKeyList = new ArrayList<>();
     ArrayList<String> Name = new ArrayList<>();
     ArrayList<String> Number = new ArrayList<>();
-    ArrayList<String> Status = new ArrayList<>();
+    ArrayList<String> CarNum = new ArrayList<>();
+    ArrayList<String> Drink_Status = new ArrayList<>();
+    ArrayList<String> Motion_Status = new ArrayList<>();
+
     ArrayList<String> Latitude = new ArrayList<>();
     ArrayList<String> Longitude = new ArrayList<>();
+    ArrayList<String> Picture = new ArrayList<>();
     String Response = "";
     int count;
 
@@ -61,7 +69,12 @@ public class MainListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+        startService(new Intent(getApplicationContext(), UserService.class));
+
+
         setContentView(R.layout.activity_main);
+
 
 
         Button button = findViewById(R.id.btn1);
@@ -103,17 +116,17 @@ public class MainListActivity extends AppCompatActivity {
 
                         boolean flag = true;
 
-                        println("응답 => " + response);
+                        Log.d("RRRRRR ", response);
 
                         JsonParser Parser = new JsonParser();
                         JsonObject jsonObj = (JsonObject) Parser.parse(response);
                         JsonArray memberArray = (JsonArray) jsonObj.get("Users");
 
                         count = memberArray.size();
-                        System.out.print("count : " + count);
+                        //System.out.print("count : " + count);
 
-                        TextView countText = (TextView) findViewById(R.id.count_text);
-                        countText.setText(Integer.toString(count));
+                        //TextView countText = (TextView) findViewById(R.id.count_text);
+                        //countText.setText(Integer.toString(count));
 
 
                         for (int i = 0; i < memberArray.size(); i++) {
@@ -125,30 +138,48 @@ public class MainListActivity extends AppCompatActivity {
 
                             System.out.println("User Name : " + object.get("User Name"));
                             Name.add(""+object.get("User Name"));
-                            Name.get(i).replaceAll("\"","");
+                            //Name.get(i).replaceAll("\"","");
+                            Name.set(i,Name.get(i).substring(1,Name.get(i).length()-1));
 
 
-                            System.out.println("User Status : " + object.get("User Status"));
-                            Status.add(""+object.get("User Status"));
-                            Status.get(i).replaceAll("\"","");
+                            System.out.println("User Car Number : " + object.get("User Car Number"));
+                            CarNum.add(""+object.get("User Car Number"));
+                            CarNum.set(i,CarNum.get(i).substring(1,CarNum.get(i).length()-1));
+
+
+                            System.out.println("User Drink Status : " + object.get("User Drink Status"));
+                            Drink_Status.add(""+object.get("User Drink Status"));
+                            Drink_Status.set(i,Drink_Status.get(i).substring(1,Drink_Status.get(i).length()-1));
+
 
                             System.out.println("User Latitude : " + object.get("User Latitude"));
-                            Latitude.add(""+object.get("User Latitude"));
-                            Latitude.get(i).replaceAll("\"","");
+                            Latitude.add(""+object.get("User Latitude")); // 위도
+
 
                             System.out.println("User Longitude : " + object.get("User Longitude"));
                             Longitude.add(""+object.get("User Longitude"));
-                            Longitude.get(i).replaceAll("\"","");
+
+
+
+                            System.out.println("User Motion Status : " + object.get("User Motion Status"));
+                            Motion_Status.add(""+object.get("User Motion Status"));
+                            Motion_Status.set(i,Motion_Status.get(i).substring(1,Motion_Status.get(i).length()-1));
+
+                            System.out.println("User Picture : " + object.get("User Picture"));
+                            Picture.add(""+object.get("User Picture"));
+                            Picture.set(i,Picture.get(i).substring(1,Picture.get(i).length()-1));
+
 
                             if(flag){
                                 pass_name = Name.get(0);
-                                pass_number = Number.get(0);
-                                pass_status = Status.get(0);
+                                pass_number = CarNum.get(0);
+                                pass_status = Drink_Status.get(0);
+                                pass_latitude = Latitude.get(0);
+                                pass_longitude = Longitude.get(0);
                                 flag = false;
                             }
 
-                            pass_latitude = Latitude.get(i);
-                            pass_longitude = Longitude.get(i);
+
 
                             System.out.println("------------------------");
                         }
@@ -190,19 +221,27 @@ public class MainListActivity extends AppCompatActivity {
         ArrayList<ItemData> oData = new ArrayList<>();
         for (int i=0; i<count; i++)
         {
+            if(Drink_Status.get(i).equals("0"))
+                continue;
+
             String[] new_name = Name.toArray(new String[Name.size()]);
             System.out.println(new_name);
 
-                ItemData oItem = new ItemData();
-                oItem.strTitle = "차주 : " + Name.get(i);
-                oItem.strDate = "차량 번호 : " + Number.get(i);
-                oData.add(oItem);
+            ItemData oItem = new ItemData();
+            oItem.strTitle = "차주 : " + Name.get(i);
+            oItem.strDate = "차량 번호 : " + CarNum.get(i);
+            oData.add(oItem);
+
+            nDatCnt++;
         }
 
         // ListView, Adapter 생성 및 연결 ------------------------
         m_oListView = (ListView)findViewById(R.id.listView);
         ListAdapter oAdapter = new ListAdapter(oData);
         m_oListView.setAdapter(oAdapter);
+
+        TextView countText = (TextView) findViewById(R.id.count_text);
+        countText.setText(Integer.toString(nDatCnt));
 
     }
 
@@ -224,6 +263,23 @@ public class MainListActivity extends AppCompatActivity {
 
         startActivity(intent);
         finish();
+    }
+
+    public void onToggleClicked(View v){
+
+        boolean on = ((ToggleButton) v).isChecked();
+
+        if(on){
+
+            System.out.print("ON");
+            Log.d("R2","aaa");
+
+        }
+
+        else {
+            Log.d("R2","bbb");
+
+        }
     }
 
 }
