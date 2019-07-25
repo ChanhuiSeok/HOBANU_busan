@@ -1,9 +1,15 @@
 package com.example.myapplication;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -13,6 +19,8 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -44,7 +52,10 @@ import static java.sql.DriverManager.println;
 
 public class MainListActivity extends AppCompatActivity {
     static String device_token;
+    static int work_status = -1;
+    static int flag = 0;
     private ListView m_oListView = null;
+    private Intent serviceIntent;
     private ImageButton button = null;
     ArrayList<String> UserKeyList = new ArrayList<>();
     ArrayList<String> Name = new ArrayList<>();
@@ -65,9 +76,21 @@ public class MainListActivity extends AppCompatActivity {
     String pass_latitude = "";
     String pass_longitude ="";
 
+    ToggleButton toggleButton;
+
+    double longitude;
+    double latitude;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(this, new OnSuccessListener<InstanceIdResult>() {
+            @Override
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                String newToken = instanceIdResult.getToken();
+                device_token = newToken;
+                Log.d("nowToken",newToken);
+            }
+        });
 
 
         startService(new Intent(getApplicationContext(), UserService.class));
@@ -97,6 +120,34 @@ public class MainListActivity extends AppCompatActivity {
         // (임의) 데이터 1000개 생성--------------------------------.
 
         button.performClick();
+
+        toggleButton = (ToggleButton)findViewById(R.id.go_to_work_button);
+        if(work_status != -1){
+            if(this.work_status == 1){// 출근한 경우
+                toggleButton.setChecked(true);
+            }
+            else if(this.work_status == 0){ // 퇴근한 경우
+                toggleButton.setChecked(false);
+            }
+        }
+        else{
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    // Actions to do after 5 seconds
+                    if(work_status == 1){// 출근한 경우
+                        toggleButton.setChecked(true);
+                    }
+                    else if(work_status == 0){ // 퇴근한 경우
+                        toggleButton.setChecked(false);
+                    }
+                }
+            }, 5000);
+
+        }
+
+
+
 
     }
 
@@ -267,19 +318,106 @@ public class MainListActivity extends AppCompatActivity {
 
     public void onToggleClicked(View v){
 
-        boolean on = ((ToggleButton) v).isChecked();
+        if(work_status == 1){
+            work_status = 0;
+            RequestQueue queue = Volley.newRequestQueue(this);
+            String url ="http://13.124.36.143/API/Police/workupdate.php";
+            url = url.concat("?token=");
+            url = url.concat(MainListActivity.device_token);
+            url = url.concat("&work=0");
 
-        if(on){
+            StringRequest request = new StringRequest(
+                    Request.Method.GET,
+                    url,
+                    new Response.Listener<String>() {  //응답을 문자열로 받아서 여기다 넣어달란말임(응답을 성공적으로 받았을 떄 이메소드가 자동으로 호출됨
+                        @Override
+                        public void onResponse(String response) {
+                            Log.d("starttest",response);
 
-            System.out.print("ON");
-            Log.d("R2","aaa");
+
+                        }
+                    },
+                    new Response.ErrorListener(){ //에러발생시 호출될 리스너 객체
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("errormessage",error.toString());
+                        }
+                    }
+            );
+            queue.add(request);
 
         }
+        else if(work_status == 0){
+            work_status = 1;
+            RequestQueue queue = Volley.newRequestQueue(this);
+            String url ="http://13.124.36.143/API/Police/workupdate.php";
+            url = url.concat("?token=");
+            url = url.concat(MainListActivity.device_token);
+            url = url.concat("&work=1");
 
-        else {
-            Log.d("R2","bbb");
+            StringRequest request = new StringRequest(
+                    Request.Method.GET,
+                    url,
+                    new Response.Listener<String>() {  //응답을 문자열로 받아서 여기다 넣어달란말임(응답을 성공적으로 받았을 떄 이메소드가 자동으로 호출됨
+                        @Override
+                        public void onResponse(String response) {
+                            Log.d("starttest",response);
 
+                        }
+                    },
+                    new Response.ErrorListener(){ //에러발생시 호출될 리스너 객체
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("errormessage",error.toString());
+                        }
+                    }
+            );
+            queue.add(request);
+            {
+                final LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                if (Build.VERSION.SDK_INT >= 23 &&
+                        ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainListActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                            0);
+                } else {
+                    Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    String provider = location.getProvider();
+                    longitude = location.getLongitude();
+                    latitude = location.getLatitude();
+                }
+                RequestQueue queue2 = Volley.newRequestQueue(this);
+                String url2 ="http://13.124.36.143/API/Police/gpsupdate.php";
+                url2 = url2.concat("?token=");
+                url2 = url2.concat(MainListActivity.device_token);
+                url2 = url2.concat("&latitude=");
+                url2 = url2.concat(Double.toString(latitude));
+                url2 = url2.concat("&longitude=");
+                url2 = url2.concat(Double.toString(longitude));
+
+                StringRequest request2 = new StringRequest(
+                        Request.Method.GET,
+                        url2,
+                        new Response.Listener<String>() {  //응답을 문자열로 받아서 여기다 넣어달란말임(응답을 성공적으로 받았을 떄 이메소드가 자동으로 호출됨
+                            @Override
+                            public void onResponse(String response) {
+                                Log.d("starttest",response);
+
+
+                            }
+                        },
+                        new Response.ErrorListener(){ //에러발생시 호출될 리스너 객체
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.d("errormessage",error.toString());
+                            }
+                        }
+                );
+
+                queue2.add(request2);
+            }
         }
+
+
     }
 
 }

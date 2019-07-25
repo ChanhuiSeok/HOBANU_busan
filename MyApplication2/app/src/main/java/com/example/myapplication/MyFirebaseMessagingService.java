@@ -60,7 +60,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         url = url.concat("&");
         url = url.concat(longitude);
         String work_status = "1";
-        url = url.concat("&");
+        url = url.concat("&work=");
         url = url.concat(work_status);
         StringRequest request = new StringRequest(
                 Request.Method.GET,
